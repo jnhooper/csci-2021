@@ -1,7 +1,7 @@
 /* 
  * CS:APP Data Lab 
  * 
- * <Please put your name and userid here>
+ * <John Hooper nisse038 3644736>
  * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
@@ -171,8 +171,8 @@ NOTES:
  *   Rating: 1
  */
 int bitNor(int x, int y) {
+  /* De Morgans rule*/
 	return ~x & ~y;
-
 }
 /* 
  * thirdBits - return word with every third bit (starting from the LSB) set to 1
@@ -181,7 +181,11 @@ int bitNor(int x, int y) {
  *   Rating: 1
  */
 int thirdBits(void) {
-  return ;
+/*since we can only use variable of 8 bits I created one thats 7 bits 
+ *then shift over 9 and add another base. this way they are padded by 2  *zeros so the pattern may repeat*/
+	int base = 0b1001001;
+ 	return (base<<27)+(base<<18)+(base<<9)+base;
+/*0b1001001001001001001001001001001;*/
 }
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
@@ -191,7 +195,11 @@ int thirdBits(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+	int killNegOne = x ^ 0;
+	
+	/*return !((x+1)<<1);*/
+	/*return (x^((x>>1)+1)<<1);*/
+	/*return !(x^0b01111111111111111111111111111111);*/
 }
 /* 
  * fitsShort - return 1 if x can be represented as a 
@@ -202,7 +210,7 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int fitsShort(int x) {
-  return 2;
+	return !((x&0b00000000000000000111111111111111)>>17);
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
