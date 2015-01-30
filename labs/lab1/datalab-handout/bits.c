@@ -171,7 +171,8 @@ NOTES:
  *   Rating: 1
  */
 int bitNor(int x, int y) {
-  return 2;
+	return ~x & ~y;
+
 }
 /* 
  * thirdBits - return word with every third bit (starting from the LSB) set to 1
@@ -180,7 +181,7 @@ int bitNor(int x, int y) {
  *   Rating: 1
  */
 int thirdBits(void) {
-  return 2;
+  return ;
 }
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
