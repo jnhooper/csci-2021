@@ -195,11 +195,22 @@ int thirdBits(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-	int killNegOne = x ^ 0;
-	
-	/*return !((x+1)<<1);*/
-	/*return (x^((x>>1)+1)<<1);*/
-	/*return !(x^0b01111111111111111111111111111111);*/
+/* the hardest part of this problem was dealing with all the cases
+ * where negative one would return one.. anyway we start by making 
+ * the max number  negative by adding one. then we have to deal 
+ * with negative one. so we break it out of keeping up with the max
+ * by adding 1 to zero (super_negative+!super_negative). then since
+ * the max plus one is esentially the inverse of itself we xor it 
+ * so that the max number is now represented as all 1's. then we
+ * just have to flip it to all zeros and bang it to reset all the 
+ * other numbers
+ */
+	int super_negative = (x+1);
+	super_negative = super_negative+!(super_negative);
+	int all_ones_if_max = x ^ super_negative;
+	int all_zeros_if_max = ~all_ones_if_max;
+	int result = !all_zeros_if_max;
+	return result;
 }
 /* 
  * fitsShort - return 1 if x can be represented as a 
