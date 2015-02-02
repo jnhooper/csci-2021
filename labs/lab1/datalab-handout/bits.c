@@ -221,7 +221,11 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int fitsShort(int x) {
-	return !((x&0b00000000000000000111111111111111)>>17);
+	int return_zero = !(x<<17);/*checking for the min*/
+	int is_neg = !(~(x>>32));/*returns zero if it is neg*/
+	int all_zero =((x<<1)>>17);
+
+	return 2;
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -231,7 +235,13 @@ int fitsShort(int x) {
  *   Rating: 2
  */
 int anyOddBit(int x) {
-    return 2;
+/*10101010101010101010101010101010
+ * should i build this up like the second one?... why not?
+ */
+	int tail = -86;
+	int last_8 = x & (-86);
+	
+	return !(!(x & ~((85<<8)+ (85<<16) +(85<<24)+85)));
 }
 /* 
  * negate - return -x 
@@ -255,6 +265,15 @@ int negate(int x) {
 int byteSwap(int x, int n, int m) {
     return 2;
 }
+
+
+
+
+
+
+
+
+
 /* 
  * replaceByte(x,n,c) - Replace byte n in x with c
  *   Bytes numbered from 0 (LSB) to 3 (MSB)
