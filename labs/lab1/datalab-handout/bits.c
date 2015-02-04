@@ -221,11 +221,15 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int fitsShort(int x) {
-	int return_zero = !(x<<17);/*checking for the min*/
-	int is_neg = !(~(x>>32));/*returns zero if it is neg*/
-	int all_zero =((x<<1)>>17);
+	int kill_MSB = x<<1;
+	int rid_right = x>15;
 
-	return 2;
+	return 7;
+	/*return !~((rid_right ^ 0)|(rid_right & -1));*/
+	/*return !(~((rid_right ^ x)^(~rid_right + rid_right)));*/
+	/*return !((rid_right+1) & rid_right );*/
+	/*return !(~(rid_right+~rid_right));*/
+	/*return !~((rid_right&-1)|(~rid_right^0));*/
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -235,12 +239,15 @@ int fitsShort(int x) {
  *   Rating: 2
  */
 int anyOddBit(int x) {
-/*10101010101010101010101010101010
- * should i build this up like the second one?... why not?
+/*
+ * Here I am building up a number where every even bit is a 1. 
+ * I then negate that getting the desired number then I and it
+ * with x. this way if there is any number where the odd bit is 
+ * one it will remain one, otherwise everything else will be zero.
+ * the remaining ones are all only odd. so I bang it making it zero 
+ * (and at the same time making everything without an odd 1 bit 1, 
+ * then bang it again to reverse it to the desired outocme.
  */
-	int tail = -86;
-	int last_8 = x & (-86);
-	
 	return !(!(x & ~((85<<8)+ (85<<16) +(85<<24)+85)));
 }
 /* 
@@ -251,7 +258,9 @@ int anyOddBit(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+/* really simple solution. we talked about it in class even 
+ */	
+  return ~x+1;
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -261,9 +270,14 @@ int negate(int x) {
  *  Legal ops: ! ~ & ^ | + << >>
  *  Max ops: 25
  *  Rating: 2
- */
+ */ 
 int byteSwap(int x, int n, int m) {
-    return 2;
+    int shift = m-n;
+	int shift8 = shift+shift+shift+shift+shift+shift+shift+shift;
+	int a = x<<shift8;
+	int b = x>>shift8;
+	int c = b<<(shift8-1);
+	return a^b;
 }
 
 
@@ -284,7 +298,12 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
-  return 2;
+	int shift_amnt = n<<3; /*0->0, 1->8 2->16 3->24*/
+	int kill_end = (x&-256)<<shift_amnt;//this will kill the last byte then move those zeros to the propper spot, keeping the rest intact
+	int emptied_out = kill_end & x;//kill the propper section
+	int move_c = c<<shift_amnt;
+	
+	return move_c|~emptied_out;
 }
 /* 
  * conditional - same as x ? y : z 
