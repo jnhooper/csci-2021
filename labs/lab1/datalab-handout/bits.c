@@ -272,12 +272,32 @@ int negate(int x) {
  *  Rating: 2
  */ 
 int byteSwap(int x, int n, int m) {
-    int shift = m-n;
-	int shift8 = shift+shift+shift+shift+shift+shift+shift+shift;
-	int a = x<<shift8;
-	int b = x>>shift8;
-	int c = b<<(shift8-1);
-	return a^b;
+    int mask_base = 255;
+
+	int n_shift = n<<3;
+	int m_shift = m<<3;
+
+	int mask_n_slot = mask_base<<n_shift;//line up the ones with n
+	int mask_m_slot = mask_base<<m_shift;//line up the ones with m
+
+	int mask_n = x & mask_n_slot;//zero out all but n
+	int mask_m = x & mask_m_slot;//zero out all but m
+
+	int right_n = mask_base & (mask_n >> n_shift);//n sitting on the right
+	int right_m = mask_base & (mask_m >> m_shift);//m sitting on the right
+
+	int place_n = right_n<<m_shift;//put it in the m slot
+	int place_m = right_m<<n_shift;//put it in the n slot
+	
+	int zero_x_n = x & ~mask_n_slot;//clear the n slot for m
+	int zero_x_m = x & ~mask_m_slot;//clear the m slot for n
+
+	int new_x = zero_x_n & zero_x_m;//combine the two
+	
+	int x_n = new_x | place_n;
+	int x_m = new_x | place_m;
+
+	return x_n | x_m;
 }
 
 
@@ -316,8 +336,7 @@ int conditional(int x, int y, int z) {
 	int one_or_zero = !x; // !0 = 1   |||  !anything else = 0
 	int negate = ~one_or_zero+1;//1 = -1 |||  ~0=0
 	int or = y | negate;// y | -1 =-1 |||  0 | y = y
-	int and = negate & z;// -1 & z =z |||  0 & z = 0
-	
+	int and = negate & z;// -1 & z =z |||  0 & z = 0	
   	return  (and^or)^negate ;
 }
 /* 
@@ -329,7 +348,13 @@ int conditional(int x, int y, int z) {
  *   Rating: 3 
  */
 int rotateRight(int x, int n) {
-  return 2;
+	int shifted = x>>n;//the right part of the number
+	int neg_n = ~n+1;//for easy subtraction
+	int roll_over = x<<(32+neg_n);//move the carried part to the end
+	int mask_x = shifted & ~(-1<<(32+neg_n));
+	
+  return roll_over|mask_x;
+
 }
 /* 
  * sm2tc - Convert from sign-magnitude to two's complement
@@ -340,13 +365,7 @@ int rotateRight(int x, int n) {
  *   Rating: 4
  */
 int sm2tc(int x) {
-  	/*int shift =x<<1;
-	int inv = ~shift;
-	int back = inv>>1;
-	int compare = back^x;
-	int bang = !compare;
-	int neg_zero = ~bang+1;//zero means its negative
-*/
+	
 	int sign = x>>31;
 	int flip = x^sign;//negative will flip
 	int check_sign = (flip>>31)|sign;
