@@ -299,11 +299,11 @@ int byteSwap(int x, int n, int m) {
  */
 int replaceByte(int x, int n, int c) {
 	int shift_amnt = n<<3; /*0->0, 1->8 2->16 3->24*/
-	int kill_end = (x&-256)<<shift_amnt;//this will kill the last byte then move those zeros to the propper spot, keeping the rest intact
-	int emptied_out = kill_end & x;//kill the propper section
-	int move_c = c<<shift_amnt;
+	int move_c = c<<shift_amnt;//move c into the right position
+	int kill_n = 255<<shift_amnt;//all zeros except where n is.
+	int emptied_out = ~kill_n & x;//kill the propper section (n)
 	
-	return move_c|~emptied_out;
+	return move_c|emptied_out;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -313,7 +313,12 @@ int replaceByte(int x, int n, int c) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+	int one_or_zero = !x; // !0 = 1   |||  !anything else = 0
+	int negate = ~one_or_zero+1;//1 = -1 |||  ~0=0
+	int or = y | negate;// y | -1 =-1 |||  0 | y = y
+	int and = negate & z;// -1 & z =z |||  0 & z = 0
+	
+  	return  (and^or)^negate ;
 }
 /* 
  * rotateRight - Rotate x to the right by n
@@ -335,7 +340,20 @@ int rotateRight(int x, int n) {
  *   Rating: 4
  */
 int sm2tc(int x) {
-  return 2;
+  	/*int shift =x<<1;
+	int inv = ~shift;
+	int back = inv>>1;
+	int compare = back^x;
+	int bang = !compare;
+	int neg_zero = ~bang+1;//zero means its negative
+*/
+	int sign = x>>31;
+	int flip = x^sign;//negative will flip
+	int check_sign = (flip>>31)|sign;
+	int correct_sign = check_sign<<31;
+	
+	
+	return (correct_sign | flip)+(~sign+1);
 }
 /* 
  * float_abs - Return bit-level equivalent of absolute value of f for
