@@ -221,15 +221,12 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int fitsShort(int x) {
-	int kill_MSB = x<<1;
-	int rid_right = x>15;
+	int rid_right = x>>15;//should return all 1's or 0's
+	int flip_x = rid_right^x;
+	int check_zero = flip_x>>15;
+	
 
-	return 7;
-	/*return !~((rid_right ^ 0)|(rid_right & -1));*/
-	/*return !(~((rid_right ^ x)^(~rid_right + rid_right)));*/
-	/*return !((rid_right+1) & rid_right );*/
-	/*return !(~(rid_right+~rid_right));*/
-	/*return !~((rid_right&-1)|(~rid_right^0));*/
+	return !check_zero;
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -299,13 +296,6 @@ int byteSwap(int x, int n, int m) {
 
 	return x_n | x_m;
 }
-
-
-
-
-
-
-
 
 
 /* 
@@ -386,7 +376,17 @@ int sm2tc(int x) {
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
-  return 2;
+  unsigned kill_sign_bit = ~(1<<31);//get ready to kill the sign
+  unsigned bad_touch_NAN = (255<<23)+1; //NAN in unsigned form
+  
+  unsigned abs_uf = kill_sign_bit & uf; //kill the bit!
+  
+  if (abs_uf < bad_touch_NAN){
+    return abs_uf;
+  }
+  else{
+    return uf;
+  }
 }
 /* 
  * float_twice - Return bit-level equivalent of expression 2*f for
