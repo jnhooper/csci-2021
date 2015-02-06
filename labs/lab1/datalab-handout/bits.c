@@ -183,7 +183,7 @@ int bitNor(int x, int y) {
 int thirdBits(void) {
 /*since we can only use variable of 8 bits I created one thats 7 bits 
  *then shift over 9 and add another base. this way they are padded by 2  *zeros so the pattern may repeat*/
-	int base = 0b1001001;
+	int base = 73;
  	return (base<<27)+(base<<18)+(base<<9)+base;
 /*0b1001001001001001001001001001001;*/
 }
@@ -206,11 +206,13 @@ int isTmax(int x) {
  * other numbers
  */
 	int super_negative = (x+1);
+	int all_ones_if_max;
+	int all_zeros_if_max;
+		
 	super_negative = super_negative+!(super_negative);
-	int all_ones_if_max = x ^ super_negative;
-	int all_zeros_if_max = ~all_ones_if_max;
-	int result = !all_zeros_if_max;
-	return result;
+	all_ones_if_max = x ^ super_negative;
+	 all_zeros_if_max = ~all_ones_if_max;
+	return !all_zeros_if_max;
 }
 /* 
  * fitsShort - return 1 if x can be represented as a 
@@ -341,7 +343,8 @@ int rotateRight(int x, int n) {
 	int shifted = x>>n;//the right part of the number
 	int neg_n = ~n+1;//for easy subtraction
 	int roll_over = x<<(32+neg_n);//move the carried part to the end
-	int mask_x = shifted & ~(-1<<(32+neg_n));
+	int neg_one = (1<<31)>>32;
+	int mask_x = shifted & ~(neg_one<<(32+neg_n));
 	
   return roll_over|mask_x;
 
