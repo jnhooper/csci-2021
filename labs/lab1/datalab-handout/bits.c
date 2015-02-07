@@ -171,7 +171,7 @@ NOTES:
  *   Rating: 1
  */
 int bitNor(int x, int y) {
-  /* De Morgans rule*/
+  /* De Morgans rule. basic logic opeator*/
 	return ~x & ~y;
 }
 /* 
@@ -223,6 +223,15 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int fitsShort(int x) {
+/*This one was quite a pain for me. I tried probably 5 different
+ * ways before realizing the obvious solution. You shift it right
+ * 15 so all that is left is the leading 17 bits. you then have to 
+ * xor x with the shifted value so if it is negative it will flip 
+ * to positive and mostly zeros if it can fit in a short. I was 
+ * having problems with the min before thinking this. you then 
+ * shift this number right 15 resulting in only zeros if its able
+ * to fit in a short
+*/
 	int rid_right = x>>15;//should return all 1's or 0's
 	int flip_x = rid_right^x;
 	int check_zero = flip_x>>15;
@@ -270,7 +279,20 @@ int negate(int x) {
  *  Max ops: 25
  *  Rating: 2
  */ 
-int byteSwap(int x, int n, int m) {
+int byteSwap(int x, int n, int m) { 
+/* I think this is the longest code I wrote... anyway what you do
+ * is you set up a base mask of all zeros except for the last byte.
+ * you then do n and m left shift 3 to get the amount you will have
+ * to shift the mask later. Next we line up the ones on our mask with
+ * the byte to be swapped. then you and x with the two masks creating
+ * two binary string with only the swappable bits. then you move those
+ * bytes all the way over to the right again before shifting them back
+ * only this time the distance of the byte you want it to be swapped with
+ * next you empty out x where the bytes used to be, then you simply and 
+ * the two words together and get x onlly missing both bytes. I then 
+ * placed each byte individually in their place then or'd them to get 
+ * the result
+*/
     int mask_base = 255;
 
 	int n_shift = n<<3;
@@ -310,6 +332,13 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
+/* first we have to figure out how far to shift our mask 
+ * using the same logic as above.n<<3. then we move c into 
+ * position by shifting the right amount. next create our 
+ * byte mask. Then we flip the sign on the mask and and it 
+ * with x to zero out that sweet spot. finally we or the 
+ * now properly placed c with out emptied out x
+*/
 	int shift_amnt = n<<3; /*0->0, 1->8 2->16 3->24*/
 	int move_c = c<<shift_amnt;//move c into the right position
 	int kill_n = 255<<shift_amnt;//all zeros except where n is.
@@ -325,6 +354,15 @@ int replaceByte(int x, int n, int c) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+/* first things first. lets figure out if the first thing
+ * should evaluate to true or not by banging x. then we 
+ * have to negate that result so we get -1 or 0.
+ * next we take y and or it with negate so that y will remain 
+ * intact if we passed in a number not zero. then we and negate
+ * with z so that if we passed in zero, it is now -1 and -1&z 
+ * is equal to z. finally we xor those two values and then the 
+ * resultant with negate
+*/
 	int one_or_zero = !x; // !0 = 1   |||  !anything else = 0
 	int negate = ~one_or_zero+1;//1 = -1 |||  ~0=0
 	int or = y | negate;// y | -1 =-1 |||  0 | y = y
@@ -340,6 +378,14 @@ int conditional(int x, int y, int z) {
  *   Rating: 3 
  */
 int rotateRight(int x, int n) {
+/* start off easy enough by pushing the number to the right. 
+ * next we create a negative n to perform a "subtraction" 
+ * from 32, effectively pushing what was first pushed off 
+ * the right all the way over to the left. then I had to make
+ * a negative one because driver didnt like it :P 
+ * next we have to mask x so that we can slot in the right part
+ * that rolled over. finally we or the two to get our answer
+*/
 	int shifted = x>>n;//the right part of the number
 	int neg_n = ~n+1;//for easy subtraction
 	int roll_over = x<<(32+neg_n);//move the carried part to the end
@@ -358,7 +404,17 @@ int rotateRight(int x, int n) {
  *   Rating: 4
  */
 int sm2tc(int x) {
-	
+/* first you have to get the sign obviously. right shift 31.
+ * then you xor x with the sign. if its was positiv then you 
+ * are doing x ^0 which will remain as x. only the negatives 
+ * will flip bits. now you want to check the sign of your 
+ * flipped number, make sure its the one you want by left 
+ * shifting it 31 (zero out everything but the sign. then you 
+ * have to or the your wanted sign with the flipped one from 
+ * before and add the negation of your sign (to account for
+ * gaining one earlier. dont worry it was positive then you 
+ * are just adding positive.
+*/
 	int sign = x>>31;
 	int flip = x^sign;//negative will flip
 	int check_sign = (flip>>31)|sign;
@@ -379,6 +435,13 @@ int sm2tc(int x) {
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
+/* first thing you have to do is kill the signed bit, by pushing 1 all the 
+ * way to the left and negating it. Then I chose to set up my variable for
+ * checking if I was going to have issues with NAN. I then killed the signed
+ * bit by anding the bit mask with uf. then you just have to check it your
+ * new uf is less than the NAN value. if its not that means you will have a 
+ * problem, in which case you just return the number given.
+*/
   unsigned kill_sign_bit = ~(1<<31);//get ready to kill the sign
   unsigned bad_touch_NAN = (255<<23)+1; //NAN in unsigned form
   
@@ -403,5 +466,6 @@ unsigned float_abs(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
+  
   return 2;
 }
