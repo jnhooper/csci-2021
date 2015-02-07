@@ -466,6 +466,46 @@ unsigned float_abs(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
+/* This one took a whilel to figure out because i was thinkign about
+ * it like I was adding uf to itself instead of just increasing the 
+ * exp by 1 essentially doubling it for most cases. Start off by
+ * segregating your signed bit, mantissa, and exp then shift your 
+ * exp over to the right for easy manipulation. check for all the bad 
+ * cases first so we can bail out if need be. then start if elseing the
+ * edge cases. if there is an overflow in the mantissa subtract one and 
+ * add it to the exp. if it is only mantissa and no exponent then you
+ * just double the mantissa by left shifting one. at the end reshift 
+ * your exp to the right location and or all your masked pieces to 
+ * reassemble your number. 
+*/  
+  unsigned mantissa = uf & 8388607;//save the mantissa
+  unsigned exp_mask = 2139095040;
+  unsigned exp= uf & exp_mask; //save the exp
+  unsigned sign = uf & (-2147483648); // save the sign
+  unsigned right_exp= (exp>>23);//gonna have to add one eventually
   
-  return 2;
+  
+  if (right_exp==255||(right_exp==0 &&mantissa==0)){
+//return uf if exp is all ones = infinity or NAN or -0 or 0
+
+    return uf;
+ 
+  }
+  else if(right_exp!=0){
+    right_exp+=1;
+  }
+  else if(mantissa==8388607){//mantissa is all ones
+  
+    right_exp+=1;//overlow  
+    mantissa -=1;//overflow
+   
+  }
+  else if(mantissa!=0){
+    mantissa= mantissa<<1;
+  } 
+  
+
+
+  right_exp=right_exp<<23;
+ return sign|right_exp|mantissa;
 }
